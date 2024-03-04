@@ -1,12 +1,12 @@
 import { Client } from "@notionhq/client";
 import { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
+import slugify from "./slugfy";
 
 
 
 const notion = new Client({
     auth: process.env.NOTION_TOKEN,
 });
-
 
 
 export const getAllPosts =async () => {
@@ -38,12 +38,13 @@ const getPageMetaData = (post:any) =>{
     // post.properties?.["作成日時"]?.created_timeで表示を変更した
     const formatDate = new Date(post.properties?.["作成日時"]?.created_time);
     const date = formatDate.toLocaleString("ja");
+    const title =post.properties?.["名前"]?.title?.[0]?.plain_text ?? "No Title";
 return{
     id:post.id,
-    title: post.properties?.["名前"]?.title?.[0]?.plain_text ?? "No Title", 
+    title: title, 
     description: post.properties?.Description?.rich_text[0].plain_text ?? "No Title",
     date: date ?? "None",
-    slug: post.properties.slug.rich_text[0].plain_text,
+    slug: slugify(title),
     tags: getTags(post.properties?.["タグ"].multi_select),
 };
 };
