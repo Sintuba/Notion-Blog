@@ -1,13 +1,13 @@
 import { Client } from "@notionhq/client";
 import { PageObjectResponse } from "@notionhq/client/build/src/api-endpoints";
-import slugify from "./slugfy";
-
+import {NotionToMarkdown} from "notion-to-md";
 
 
 const notion = new Client({
     auth: process.env.NOTION_TOKEN,
 });
 
+const n2m = new NotionToMarkdown({notionClient:notion});
 
 export const getAllPosts =async () => {
     const posts = await notion.databases.query({
@@ -42,9 +42,36 @@ const getPageMetaData = (post:any) =>{
 return{
     id:post.id,
     title: title, 
-    description: post.properties?.Description?.rich_text[0].plain_text ?? "No Title",
+    description: post.properties?.Description?.rich_text[0]?.plain_text ?? "No Title",
     date: date ?? "None",
-    slug: slugify(title),
+    slug: post.properties?.Slug?.rich_text[0]?.plain_text ?? "Null",
+    //slugify(title),
     tags: getTags(post.properties?.["タグ"].multi_select),
 };
 };
+
+export const getSinglePost = async (slug:any) =>{
+    const response = await notion.databases.query({
+        database_id: process.env.NOTION_DATABASE_ID,
+        filter:{
+            property:"Slug",
+            formula:{
+                string:{
+                    equals:slug,
+                },
+            },
+        },
+    });
+
+    const page = response.results[0];
+    const metadata = getPageMetaData(page);
+    // console.log(metadata);
+    const mdBlocks = await n2m.pageToMarkdown(page.id);
+    const  mdString = n2m.toMarkdownString(mdBlocks);
+    console.log(mdString);
+    return{
+        metadata,
+        markdown:mdString,
+    }
+};
+
