@@ -42,6 +42,7 @@ const getPageMetaData = (post:any) =>{
 return{
     id:post.id,
     title: title, 
+    file: post.properties?.File?.file?.url ?? "",
     description: post.properties?.Description?.rich_text[0]?.plain_text ?? "No Title",
     date: date ?? "None",
     slug: post.properties?.Slug?.rich_text[0]?.plain_text ?? "Null",

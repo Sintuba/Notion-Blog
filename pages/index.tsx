@@ -50,7 +50,7 @@ export default function Home({allPosts}:HomeProps) {
               date={post.date}
               tag={post.tags}
               slug={post.slug}
-
+              file={post.file}
             />
           </div>
         ))}
