@@ -27,7 +27,7 @@ export const getAllPosts =async () => {
     });
 };
 
-    
+   
 const getPageMetaData = (post:any) =>{
     const getTags = (tags:any) =>{
         const allTags = tags.map((tag:any)=>{
@@ -35,19 +35,23 @@ const getPageMetaData = (post:any) =>{
         });
         return allTags;
     };
+
     // post.properties?.["作成日時"]?.created_timeで表示を変更した
     const formatDate = new Date(post.properties?.["作成日時"]?.created_time);
     const date = formatDate.toLocaleString("ja");
     const title =post.properties?.["名前"]?.title?.[0]?.plain_text ?? "No Title";
-return{
+    const file = post.type === "external" ? post.file.external.url : "https://file.notion.so/f/f/6a7d23ec-b9a4-4a96-ad0f-6fd6b7a3bd99/7bbdf7fd-c01f-4827-a57d-f425673b7dbf/Next.jpg?id=5a9423e7-b95c-4948-9793-b2736be3ef86&table=block&spaceId=6a7d23ec-b9a4-4a96-ad0f-6fd6b7a3bd99&expirationTimestamp=1709856000000&signature=gBwKDunUl-CL8O-NG7O7KRvILKtYHVn6_EPrOrEBWFM&downloadName=Next.jpg";
+    console.log(`ファイル${file}`);
+    return{
     id:post.id,
     title: title, 
-    file: post.properties?.File?.file?.url ?? "",
+    file: file,
     description: post.properties?.Description?.rich_text[0]?.plain_text ?? "No Title",
     date: date ?? "None",
     slug: post.properties?.Slug?.rich_text[0]?.plain_text ?? "Null",
     //slugify(title),
     tags: getTags(post.properties?.["タグ"].multi_select),
+  
 };
 };
 
@@ -69,7 +73,8 @@ export const getSinglePost = async (slug:any) =>{
     // console.log(metadata);
     const mdBlocks = await n2m.pageToMarkdown(page.id);
     const  mdString = n2m.toMarkdownString(mdBlocks);
-    console.log(mdString);
+    // console.log(mdString);
+
     return{
         metadata,
         markdown:mdString,
